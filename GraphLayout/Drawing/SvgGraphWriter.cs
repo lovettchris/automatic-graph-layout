@@ -85,7 +85,7 @@ namespace Microsoft.Msagl.Drawing
                 WriteEdges();
                 WriteNodes();
                 
-#if DEBUG && TEST_MSAGL
+#if TEST_MSAGL && TEST_MSAGL
                 WriteDebugCurves();
 #endif
                 Close();
@@ -97,7 +97,7 @@ namespace Microsoft.Msagl.Drawing
                 Thread.CurrentThread.CurrentCulture = currentCulture;
             }
         }
-#if DEBUG && TEST_MSAGL
+#if TEST_MSAGL && TEST_MSAGL
         void WriteDebugCurves() {
             if(_graph.DebugCurves!=null)
                 foreach (var debugCurve in _graph.DebugCurves) {
@@ -157,15 +157,14 @@ namespace Microsoft.Msagl.Drawing
                 return;
             //need to remove these hecks. TODO
             const double yScaleAdjustment = 1.5;
-  //          const double scaleFromGdiToSvg = 1.5;
 
             var x = label.Center.X - label.Width / 2;
             var y = label.Center.Y + label.Height / (2 * yScaleAdjustment);
             WriteStartElement("text");
             WriteAttribute("x", x);
             WriteAttribute("y", y);
-            WriteAttribute("font-family", "Arial");//AttrSanitizer(label.FontName)); 
-            WriteAttribute("font-size", "16"); //label.FontSize * scaleFromGdiToSvg);
+            WriteAttribute("font-family", "Arial");
+            WriteAttribute("font-size", "16");
             WriteAttribute("fill", MsaglColorToSvgColor(label.FontColor));
             xmlWriter.WriteRaw(NodeSanitizer(label.Text));
             WriteEndElement();
@@ -207,9 +206,7 @@ namespace Microsoft.Msagl.Drawing
 
         void Open()
         {
-#if !SILVERLIGHT
             WriteComment("SvgWriter version " + typeof(SvgGraphWriter).Assembly.GetName().Version);
-#endif
             var box = _graph.BoundingBox;
             xmlWriter.WriteStartElement("svg", "http://www.w3.org/2000/svg");
             WriteAttributeWithPrefix("xmlns", "xlink", "http://www.w3.org/1999/xlink");
@@ -217,7 +214,6 @@ namespace Microsoft.Msagl.Drawing
             WriteAttribute("height", box.Height);
             WriteAttribute("id", "svg2");
             WriteAttribute("version", "1.1");
-            // WriteEndElement();
             WriteStartElement("g");
             WriteAttribute("transform", String.Format("translate({0},{1})", -box.Left, -box.Bottom));
         }
@@ -362,7 +358,7 @@ namespace Microsoft.Msagl.Drawing
                 case Shape.Ellipse:
                 case Shape.DrawFromGeometry:
 
-#if DEBUG
+#if TEST_MSAGL
                 case Shape.TestShape:
 #endif
                     WriteFromMsaglCurve(node);
@@ -696,20 +692,8 @@ namespace Microsoft.Msagl.Drawing
         const double DoubleCircleOffsetRatio = 0.9;
         const double ArrowAngle = 25; //degrees
 
-
-        //private void WriteLabelSize(Size size) {
-        //    WriteStartElement(Tokens.LabelSize);
-        //    WriteStringElement(Tokens.Width, size.Width);
-        //    WriteStringElement(Tokens.Height, size.Height);
-        //    WriteEndElement();
-        //}
-
         static void WriteStyles(IEnumerable<Style> styles)
         {
-            //            WriteStartElement(Tokens.Styles);
-            //            foreach (Style s in styles)
-            //                WriteStringElement(Tokens.Style, s);
-            //            WriteEndElement();
         }
 
         void WriteEndElement()
@@ -720,15 +704,6 @@ namespace Microsoft.Msagl.Drawing
         void WriteStartElement(string s)
         {
             xmlWriter.WriteStartElement(s);
-        }
-
-        ///<summary>
-        ///</summary>
-        ///<param name="graph"></param>
-        ///<param name="outputFile"></param>
-        public static void Write(Graph graph, string outputFile)
-        {
-            Write(graph, outputFile, null, null, 4);
         }
 
         ///<summary>
